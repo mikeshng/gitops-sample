@@ -1,0 +1,11 @@
+---
+apiVersion: tower.ansible.com/v1alpha1
+kind: AnsibleJob
+metadata:
+  name: prehook-tags-test
+  namespace: mike-ans-tags
+spec:
+  job_template_name: Test Tags
+  tower_auth_secret: toweraccess
+  job_tags: hello
+  skip_tags: goodbye
