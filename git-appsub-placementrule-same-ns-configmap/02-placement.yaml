@@ -1,0 +1,7 @@
+apiVersion: apps.open-cluster-management.io/v1
+kind: PlacementRule
+metadata:
+  name: placementrule
+  namespace: busybox-sample
+spec:
+  clusterReplicas: 10

@@ -1,0 +1,8 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  annotations:
+    # Workaround for permissions issue for volsync mover pod.
+    volsync.backube/privileged-movers: "true"
+  name: busybox-sample
