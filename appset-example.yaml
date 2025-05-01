@@ -1,0 +1,58 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: guestbook-allclusters-app-set
+  namespace: openshift-gitops
+spec:
+  generators:
+  - clusterDecisionResource:
+      configMapRef: ocm-placement-generator
+      labelSelector:
+        matchLabels:
+          cluster.open-cluster-management.io/placement: aws-app-placement
+      requeueAfterSeconds: 30
+  strategy:
+    type: RollingSync
+    rollingSync:
+      steps:
+      - name: dev-stage
+        matchExpressions:
+        - key: envLabel
+          operator: In
+          values: [env-dev]
+        maxUpdate: 100%
+      - name: qa-stage
+        matchExpressions:
+        - key: envLabel
+          operator: In
+          values: [env-qa]
+        maxUpdate: 100%
+      - name: prod-stage
+        matchExpressions:
+        - key: envLabel
+          operator: In
+          values: [env-prod]
+        maxUpdate: 100%
+  template:
+    preserveFields:
+    - metadata.labels.envLabel
+    metadata:
+      annotations:
+        apps.open-cluster-management.io/ocm-managed-cluster: '{{name}}'
+        apps.open-cluster-management.io/ocm-managed-cluster-app-namespace: openshift-gitops
+        argocd.argoproj.io/skip-reconcile: "true"
+      labels:
+        apps.open-cluster-management.io/pull-to-ocm-managed-cluster: "true"
+      name: '{{name}}-guestbook-app'
+    spec:
+      destination:
+        namespace: guestbook
+        server: https://kubernetes.default.svc
+      project: default
+      sources:
+      - repoURL: https://github.com/argoproj/argocd-example-apps.git
+        targetRevision: main
+        path: guestbook
+      syncPolicy:
+        syncOptions:
+        - CreateNamespace=true
